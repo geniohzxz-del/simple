@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>湊百消消樂</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow-x: hidden; }
+  body {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    background: 
+      radial-gradient(circle at 20% 10%, #fde68a 0%, transparent 50%),
+      radial-gradient(circle at 80% 90%, #fdba74 0%, transparent 50%),
+      linear-gradient(180deg, #fef3c7 0%, #fed7aa 100%);
+    min-height: 100vh;
+    padding: 14px 10px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+    -webkit-user-select: none;
+    color: #78350f;
+  }
+  .header { text-align: center; margin-bottom: 10px; }
+  h1 {
+    font-family: "Fredoka", "Noto Sans TC", sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #78350f;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  h1 .emoji { display: inline-block; transform: rotate(-8deg); }
+  .subtitle {
+    font-size: 13px;
+    color: #b45309;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .mode-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    width: 100%;
+    max-width: 360px;
+    margin-bottom: 10px;
+  }
+  .mode-btn {
+    padding: 9px 4px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.7);
+    font-family: "Fredoka", "Noto Sans TC", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #94a3b8;
+    box-shadow: 0 1px 3px rgba(146, 64, 14, 0.08);
+    transition: all 0.15s;
+    line-height: 1.3;
+  }
+  .mode-btn.active {
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  }
+  .mode-btn.active[data-mode="add100"]   { background: #f59e0b; }
+  .mode-btn.active[data-mode="add1000"]  { background: #10b981; }
+  .mode-btn.active[data-mode="add10000"] { background: #3b82f6; }
+  .mode-btn.active[data-mode="mulDiv"]   { background: #ec4899; }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    width: 100%;
+    max-width: 360px;
+    margin-bottom: 10px;
+  }
+  .stat {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    padding: 6px 4px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(146, 64, 14, 0.08);
+  }
+  .stat-label {
+    font-size: 10px;
+    color: #b45309;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  .stat-value {
+    font-family: "Fredoka", sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #78350f;
+    line-height: 1.1;
+    margin-top: 1px;
+  }
+  .formula {
+    background: white;
+    padding: 10px 14px;
+    border-radius: 16px;
+    margin-bottom: 10px;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(146, 64, 14, 0.12);
+    width: 100%;
+    max-width: 360px;
+    font-family: "Fredoka", sans-serif;
+    flex-wrap: nowrap;
+  }
+  .f-num {
+    font-size: 22px;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: center;
+    flex-shrink: 1;
+  }
+  .f-num.long { font-size: 17px; }
+  .f-num.xlong { font-size: 13px; }
+  .f-num.empty { color: #cbd5e1; }
+  .f-num.pos { color: #0369a1; }
+  .f-num.neg { color: #be123c; }
+  .f-op {
+    font-size: 17px;
+    color: #94a3b8;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .f-result {
+    font-size: 22px;
+    font-weight: 700;
+    min-width: 50px;
+    text-align: center;
+    color: #cbd5e1;
+    transition: color 0.2s;
+    flex-shrink: 1;
+  }
+  .f-result.long { font-size: 17px; }
+  .f-result.xlong { font-size: 13px; }
+  .f-result.valid { color: #16a34a; animation: pulse 0.4s ease; }
+  .f-result.invalid { color: #dc2626; }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    width: 100%;
+    max-width: 360px;
+    margin-bottom: 12px;
+  }
+  .tile {
+    aspect-ratio: 1;
+    background: #ffffff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Fredoka", sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 
+      0 2px 0 rgba(146, 64, 14, 0.15),
+      0 3px 6px rgba(146, 64, 14, 0.08);
+    transition: transform 0.1s, box-shadow 0.1s;
+    position: relative;
+    line-height: 1;
+    padding: 2px;
+  }
+  .tile.long { font-size: 16px; }
+  .tile.xlong { font-size: 12px; }
+  .tile.pos { color: #0369a1; background: #e0f2fe; }
+  .tile.neg { color: #be123c; background: #ffe4e6; }
+  .tile:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 rgba(146, 64, 14, 0.15);
+  }
+  .tile.selected {
+    background: #fbbf24;
+    color: white !important;
+    box-shadow: 
+      0 0 0 3px #f59e0b, 
+      0 4px 8px rgba(245, 158, 11, 0.4);
+    transform: translateY(-2px);
+    z-index: 2;
+  }
+  .tile.hint { animation: hintPulse 0.8s ease-in-out 2; }
+  @keyframes hintPulse {
+    0%, 100% { box-shadow: 0 2px 0 rgba(146, 64, 14, 0.15), 0 3px 6px rgba(146, 64, 14, 0.08); }
+    50% { box-shadow: 0 0 0 4px #ec4899, 0 4px 12px rgba(236, 72, 153, 0.5); }
+  }
+  .tile.success { animation: success 0.5s ease forwards; }
+  @keyframes success {
+    0% { transform: scale(1.05); background: #16a34a; color: white; }
+    50% { transform: scale(1.25) rotate(5deg); background: #16a34a; color: white; }
+    100% { transform: scale(0) rotate(180deg); opacity: 0; }
+  }
+  .tile.shake { animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+  }
+  .tile.empty {
+    background: transparent;
+    box-shadow: none;
+    pointer-events: none;
+  }
+  .controls {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 360px;
+  }
+  button.action {
+    padding: 11px 12px;
+    border: none;
+    border-radius: 12px;
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    flex: 1;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+    transition: transform 0.1s, box-shadow 0.1s;
+    color: white;
+  }
+  button.action:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+  }
+  .btn-primary { background: #f59e0b; }
+  .btn-secondary { background: #8b5cf6; }
+  .btn-tertiary { background: #64748b; }
+  .rules {
+    background: rgba(255,255,255,0.75);
+    padding: 10px 14px;
+    border-radius: 14px;
+    margin-top: 12px;
+    max-width: 360px;
+    width: 100%;
+    font-size: 12px;
+    color: #78350f;
+    line-height: 1.5;
+  }
+  .rules-title {
+    font-weight: 700;
+    color: #78350f;
+    margin-bottom: 3px;
+    font-size: 12px;
+  }
+  .examples {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+  }
+  .ex {
+    background: white;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 11px;
+    color: #b45309;
+  }
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .overlay.show { display: flex; animation: fadeIn 0.3s; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: white;
+    padding: 26px 22px;
+    border-radius: 22px;
+    text-align: center;
+    max-width: 320px;
+    width: 100%;
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .win-emoji {
+    font-size: 56px;
+    margin-bottom: 6px;
+    display: inline-block;
+    animation: bounce 1s ease infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .modal h2 {
+    font-family: "Fredoka", sans-serif;
+    color: #78350f;
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+  .modal p {
+    color: #b45309;
+    line-height: 1.7;
+    margin-bottom: 14px;
+    font-size: 14px;
+  }
+  .modal .stars {
+    font-size: 26px;
+    margin-bottom: 10px;
+    letter-spacing: 4px;
+  }
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    z-index: 50;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); }
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1><span class="emoji">🎯</span> 湊百消消樂</h1>
+    <p class="subtitle">找到能湊出 100 倍數的兩個格子</p>
+  </div>
+  
+  <div class="mode-bar" id="modeBar">
+    <button class="mode-btn active" data-mode="add100">➕<br>百</button>
+    <button class="mode-btn" data-mode="add1000">➕<br>千</button>
+    <button class="mode-btn" data-mode="add10000">➕<br>萬</button>
+    <button class="mode-btn" data-mode="mulDiv">✖<br>乘除</button>
+  </div>
+  
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">已消除</div>
+      <div class="stat-value"><span id="pairs">0</span>/12</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">出手</div>
+      <div class="stat-value" id="attempts">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">時間</div>
+      <div class="stat-value" id="timer">0:00</div>
+    </div>
+  </div>
+  
+  <div class="formula">
+    <span class="f-num empty" id="sel1">?</span>
+    <span class="f-op" id="op">+</span>
+    <span class="f-num empty" id="sel2">?</span>
+    <span class="f-op">=</span>
+    <span class="f-result" id="selResult">?</span>
+  </div>
+  
+  <div class="grid" id="grid"></div>
+  
+  <div class="controls">
+    <button class="action btn-primary" onclick="newGame()">🔄 新局</button>
+    <button class="action btn-secondary" onclick="showHint()">💡 提示</button>
+    <button class="action btn-tertiary" onclick="clearSelection()">✖ 取消</button>
+  </div>
+  
+  <div class="rules">
+    <div class="rules-title">📖 怎麼玩</div>
+    <span id="rulesText"></span>
+    <div class="examples" id="rulesExamples"></div>
+  </div>
+  
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <div class="win-emoji" id="winEmoji">🎉</div>
+      <h2 id="winTitle">恭喜過關！</h2>
+      <div class="stars" id="stars"></div>
+      <p id="winStats"></p>
+      <button class="action btn-primary" style="flex:none;min-width:140px;" onclick="newGame()">再玩一次</button>
+    </div>
+  </div>
+
+<script>
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function sizeClass(s) {
+  const len = String(s).length;
+  if (len >= 6) return 'xlong';
+  if (len >= 4) return 'long';
+  return '';
+}
+
+// Generate an addition pair where sum % modN === 0
+// minMag/maxMag: magnitude range for operands (positive bounds)
+function genAddPair(modN, minMag, maxMag) {
+  // 30% chance: zero-sum pair (a + (-a) = 0)
+  if (Math.random() < 0.3) {
+    const a = randInt(minMag, maxMag);
+    return [a, -a];
+  }
+  
+  const negative = Math.random() < 0.3;
+  const sign = negative ? -1 : 1;
+  
+  const minSum = 2 * minMag;
+  const maxSum = 2 * maxMag;
+  const minTargetN = Math.ceil(minSum / modN);
+  const maxTargetN = Math.floor(maxSum / modN);
+  if (maxTargetN < minTargetN) {
+    const a = randInt(minMag, maxMag);
+    return [sign * a, -sign * a];
+  }
+  const targetN = randInt(minTargetN, maxTargetN);
+  const target = targetN * modN;
+  
+  const aMin = Math.max(minMag, target - maxMag);
+  const aMax = Math.min(maxMag, target - minMag);
+  if (aMax < aMin) {
+    const a = randInt(minMag, maxMag);
+    return [sign * a, -sign * a];
+  }
+  const a = randInt(aMin, aMax);
+  const b = target - a;
+  
+  return [sign * a, sign * b];
+}
+
+const MODES = {
+  add100: {
+    rule: '兩數相加 = 100 的倍數，操作數是 2 位數',
+    examples: ['73 + 27 = 100', '−45 + 45 = 0', '−62 + −38 = −100'],
+    formulaOp: '+',
+    isNeg: v => v < 0,
+    display: v => String(v),
+    lenClass: v => sizeClass(v),
+    validate: (a, b) => (a + b) % 100 === 0,
+    compute: (a, b) => a + b,
+    generate: () => {
+      const nums = [];
+      for (let i = 0; i < 12; i++) {
+        const t = randInt(0, 2);
+        let a, b;
+        if (t === 0) { a = randInt(11, 89); b = 100 - a; }
+        else if (t === 1) { a = randInt(10, 99); b = -a; }
+        else { a = randInt(11, 89); b = -(100 - a); a = -a; }
+        nums.push(a, b);
+      }
+      let extra = randInt(10, 99);
+      if (Math.random() < 0.5) extra = -extra;
+      nums.push(extra);
+      return shuffle(nums);
+    }
+  },
+  
+  add1000: {
+    rule: '兩數相加 = 100 的倍數，操作數是 3-4 位數',
+    examples: ['467 + 1233 = 1700', '789 + 211 = 1000', '−1456 + 1456 = 0'],
+    formulaOp: '+',
+    isNeg: v => v < 0,
+    display: v => String(v),
+    lenClass: v => sizeClass(v),
+    validate: (a, b) => (a + b) % 100 === 0,
+    compute: (a, b) => a + b,
+    generate: () => {
+      const nums = [];
+      for (let i = 0; i < 12; i++) {
+        const [a, b] = genAddPair(100, 100, 4999);
+        nums.push(a, b);
+      }
+      let extra = randInt(100, 4999);
+      if (Math.random() < 0.5) extra = -extra;
+      nums.push(extra);
+      return shuffle(nums);
+    }
+  },
+  
+  add10000: {
+    rule: '兩數相加 = 100 的倍數，操作數是 4-5 位數',
+    examples: ['3472 + 6528 = 10000', '12345 + 17655 = 30000', '−15000 + 15000 = 0'],
+    formulaOp: '+',
+    isNeg: v => v < 0,
+    display: v => String(v),
+    lenClass: v => sizeClass(v),
+    validate: (a, b) => (a + b) % 100 === 0,
+    compute: (a, b) => a + b,
+    generate: () => {
+      const nums = [];
+      for (let i = 0; i < 12; i++) {
+        const [a, b] = genAddPair(100, 1000, 19999);
+        nums.push(a, b);
+      }
+      let extra = randInt(1000, 19999);
+      if (Math.random() < 0.5) extra = -extra;
+      nums.push(extra);
+      return shuffle(nums);
+    }
+  },
+  
+  mulDiv: {
+    rule: '兩數相乘 = 100 的倍數（湊整：25×4=100、125×8=1000）',
+    examples: ['25 × 4 = 100', '50 × 2 = 100', '125 × 8 = 1000', '40 × 25 = 1000'],
+    formulaOp: '×',
+    isNeg: () => false,
+    display: v => String(v),
+    lenClass: v => sizeClass(v),
+    validate: (a, b) => (a * b) % 100 === 0 && (a * b) !== 0,
+    compute: (a, b) => a * b,
+    generate: () => {
+      // Curated pool: all products are multiples of 100
+      // Excludes elements divisible by 100 (e.g., 100, 200) so extras can be truly safe
+      const pairs = [
+        // Product = 100
+        [2, 50], [4, 25], [5, 20],
+        // Product = 200
+        [4, 50], [5, 40], [8, 25], [10, 20],
+        // Product = 300
+        [4, 75], [6, 50], [12, 25], [15, 20],
+        // Product = 400
+        [5, 80], [8, 50], [10, 40], [16, 25],
+        // Product = 500
+        [10, 50], [20, 25],
+        // Product = 1000 (核心 trinity)
+        [4, 250], [8, 125], [20, 50], [25, 40],
+        // Product = 2000
+        [8, 250], [16, 125], [25, 80], [40, 50],
+        // Product = 10000
+        [40, 250], [80, 125]
+      ];
+      const nums = [];
+      for (let i = 0; i < 12; i++) {
+        const p = pairs[randInt(0, pairs.length - 1)];
+        if (Math.random() < 0.5) nums.push(p[0], p[1]);
+        else nums.push(p[1], p[0]);
+      }
+      // Safe extras: coprime to 10, so X × any pool element won't be multiple of 100
+      const safeExtras = [3, 7, 9, 11, 13, 17, 19, 21, 23, 27, 29, 33, 37, 39, 49];
+      nums.push(safeExtras[randInt(0, safeExtras.length - 1)]);
+      return shuffle(nums);
+    }
+  }
+};
+
+let currentMode = 'add100';
+let tiles = [];
+let selected = [];
+let pairsFound = 0;
+let attempts = 0;
+let startTime = null;
+let timerInterval = null;
+let busy = false;
+
+function getMode() { return MODES[currentMode]; }
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  const mode = getMode();
+  tiles.forEach((val, idx) => {
+    const tile = document.createElement('div');
+    tile.dataset.idx = idx;
+    if (val === null || val === undefined) {
+      tile.className = 'tile empty';
+    } else {
+      const sign = mode.isNeg(val) ? 'neg' : 'pos';
+      const size = mode.lenClass(val);
+      tile.className = `tile ${sign} ${size}`.trim();
+      tile.textContent = mode.display(val);
+      tile.addEventListener('click', () => clickTile(idx));
+      tile.addEventListener('touchstart', (e) => { e.preventDefault(); clickTile(idx); }, {passive: false});
+    }
+    grid.appendChild(tile);
+  });
+  selected.forEach(i => {
+    const el = document.querySelector(`.tile[data-idx="${i}"]`);
+    if (el) el.classList.add('selected');
+  });
+}
+
+function clickTile(idx) {
+  if (busy) return;
+  if (tiles[idx] === null || tiles[idx] === undefined) return;
+  const tileEl = document.querySelector(`.tile[data-idx="${idx}"]`);
+  if (!tileEl) return;
+  
+  const selIdx = selected.indexOf(idx);
+  if (selIdx !== -1) {
+    selected.splice(selIdx, 1);
+    tileEl.classList.remove('selected');
+    updateFormula();
+    return;
+  }
+  if (selected.length >= 2) return;
+  
+  selected.push(idx);
+  tileEl.classList.add('selected');
+  updateFormula();
+  
+  if (selected.length === 2) {
+    attempts++;
+    document.getElementById('attempts').textContent = attempts;
+    const a = tiles[selected[0]];
+    const b = tiles[selected[1]];
+    const mode = getMode();
+    
+    if (mode.validate(a, b)) {
+      busy = true;
+      setTimeout(() => {
+        const sel = [...selected];
+        sel.forEach(i => {
+          const el = document.querySelector(`.tile[data-idx="${i}"]`);
+          if (el) { el.classList.remove('selected'); el.classList.add('success'); }
+        });
+        burstConfetti();
+        setTimeout(() => {
+          sel.forEach(i => { tiles[i] = null; });
+          selected = [];
+          pairsFound++;
+          document.getElementById('pairs').textContent = pairsFound;
+          renderGrid();
+          updateFormula();
+          busy = false;
+          if (pairsFound === 12) winGame();
+        }, 500);
+      }, 450);
+    } else {
+      busy = true;
+      setTimeout(() => {
+        const sel = [...selected];
+        sel.forEach(i => {
+          const el = document.querySelector(`.tile[data-idx="${i}"]`);
+          if (el) el.classList.add('shake');
+        });
+        setTimeout(() => {
+          sel.forEach(i => {
+            const el = document.querySelector(`.tile[data-idx="${i}"]`);
+            if (el) el.classList.remove('selected', 'shake');
+          });
+          selected = [];
+          updateFormula();
+          busy = false;
+        }, 450);
+      }, 500);
+    }
+  }
+}
+
+function updateFormula() {
+  const sel1 = document.getElementById('sel1');
+  const sel2 = document.getElementById('sel2');
+  const result = document.getElementById('selResult');
+  const opEl = document.getElementById('op');
+  const mode = getMode();
+  
+  opEl.textContent = mode.formulaOp;
+  
+  if (selected.length >= 1) {
+    const v = tiles[selected[0]];
+    sel1.textContent = mode.display(v);
+    sel1.className = `f-num ${mode.isNeg(v) ? 'neg' : 'pos'} ${mode.lenClass(v)}`.trim();
+  } else {
+    sel1.textContent = '?';
+    sel1.className = 'f-num empty';
+  }
+  
+  if (selected.length >= 2) {
+    const v1 = tiles[selected[0]];
+    const v2 = tiles[selected[1]];
+    sel2.textContent = mode.display(v2);
+    sel2.className = `f-num ${mode.isNeg(v2) ? 'neg' : 'pos'} ${mode.lenClass(v2)}`.trim();
+    
+    const valid = mode.validate(v1, v2);
+    const res = mode.compute(v1, v2);
+    result.textContent = res;
+    result.className = `f-result ${sizeClass(res)} ${valid ? 'valid' : 'invalid'}`.trim();
+  } else {
+    sel2.textContent = '?';
+    sel2.className = 'f-num empty';
+    result.textContent = '?';
+    result.className = 'f-result';
+  }
+}
+
+function clearSelection() {
+  if (busy) return;
+  selected.forEach(i => {
+    const el = document.querySelector(`.tile[data-idx="${i}"]`);
+    if (el) el.classList.remove('selected');
+  });
+  selected = [];
+  updateFormula();
+}
+
+function startTimer() {
+  startTime = Date.now();
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    document.getElementById('timer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  }, 1000);
+}
+
+function showHint() {
+  if (busy) return;
+  clearSelection();
+  const remaining = [];
+  tiles.forEach((v, i) => { if (v !== null && v !== undefined) remaining.push(i); });
+  const mode = getMode();
+  
+  for (let i = 0; i < remaining.length; i++) {
+    for (let j = i + 1; j < remaining.length; j++) {
+      if (mode.validate(tiles[remaining[i]], tiles[remaining[j]])) {
+        const el = document.querySelector(`.tile[data-idx="${remaining[i]}"]`);
+        if (el) {
+          el.classList.add('hint');
+          setTimeout(() => el.classList.remove('hint'), 1700);
+        }
+        return;
+      }
+    }
+  }
+  
+  document.getElementById('winEmoji').textContent = '😅';
+  document.getElementById('winTitle').textContent = '沒辦法繼續了';
+  document.getElementById('stars').textContent = '';
+  document.getElementById('winStats').innerHTML = 
+    `剩下的格子無法配對<br>清掉了 <strong>${pairsFound}</strong> 對，再試一次吧！`;
+  document.getElementById('overlay').classList.add('show');
+}
+
+function winGame() {
+  clearInterval(timerInterval);
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  const accuracy = Math.round(12 / attempts * 100);
+  
+  let stars = '⭐';
+  if (accuracy >= 60) stars = '⭐⭐';
+  if (accuracy >= 85) stars = '⭐⭐⭐';
+  
+  document.getElementById('winEmoji').textContent = '🎉';
+  document.getElementById('winTitle').textContent = '全部消光啦！';
+  document.getElementById('stars').textContent = stars;
+  document.getElementById('winStats').innerHTML = 
+    `⏱ 用時 <strong>${m}:${s.toString().padStart(2,'0')}</strong><br>
+     🎯 出手 <strong>${attempts}</strong> 次<br>
+     📊 準確率 <strong>${accuracy}%</strong>`;
+  document.getElementById('overlay').classList.add('show');
+  
+  for (let i = 0; i < 40; i++) {
+    setTimeout(() => burstConfetti(true), i * 50);
+  }
+}
+
+function burstConfetti(big = false) {
+  const colors = ['#f59e0b', '#ec4899', '#8b5cf6', '#10b981', '#3b82f6', '#ef4444'];
+  const count = big ? 1 : 8;
+  for (let i = 0; i < count; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.left = (Math.random() * 100) + 'vw';
+    c.style.top = big ? '-10px' : (40 + Math.random() * 30) + 'vh';
+    c.style.borderRadius = Math.random() < 0.5 ? '50%' : '2px';
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    const duration = 1.5 + Math.random() * 1.5;
+    c.style.animation = `fall ${duration}s ease-in forwards`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), duration * 1000);
+  }
+}
+
+function updateRules() {
+  const mode = getMode();
+  document.getElementById('rulesText').textContent = mode.rule;
+  const ex = document.getElementById('rulesExamples');
+  ex.innerHTML = '';
+  mode.examples.forEach(e => {
+    const span = document.createElement('span');
+    span.className = 'ex';
+    span.textContent = e;
+    ex.appendChild(span);
+  });
+}
+
+function switchMode(mode) {
+  if (currentMode === mode) return;
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  updateRules();
+  newGame();
+}
+
+function newGame() {
+  busy = false;
+  const mode = getMode();
+  tiles = mode.generate();
+  selected = [];
+  pairsFound = 0;
+  attempts = 0;
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('pairs').textContent = '0';
+  document.getElementById('attempts').textContent = '0';
+  renderGrid();
+  updateFormula();
+  startTimer();
+}
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+});
+
+updateRules();
+newGame();
+</script>
+</body>
+</html>
