@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>湊百消消樂</title>
+<title>簡化計算</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
@@ -43,25 +43,25 @@
   }
   .mode-bar {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
     width: 100%;
-    max-width: 360px;
+    max-width: 760px;
     margin-bottom: 10px;
   }
   .mode-btn {
-    padding: 9px 4px;
+    padding: 8px 3px;
     border: none;
-    border-radius: 12px;
+    border-radius: 11px;
     background: rgba(255, 255, 255, 0.7);
     font-family: "Fredoka", "Noto Sans TC", sans-serif;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     color: #94a3b8;
     box-shadow: 0 1px 3px rgba(146, 64, 14, 0.08);
     transition: all 0.15s;
-    line-height: 1.3;
+    line-height: 1.25;
   }
   .mode-btn.active {
     color: white;
@@ -71,13 +71,14 @@
   .mode-btn.active[data-mode="add100"]   { background: #f59e0b; }
   .mode-btn.active[data-mode="add1000"]  { background: #10b981; }
   .mode-btn.active[data-mode="add10000"] { background: #3b82f6; }
-  .mode-btn.active[data-mode="mulDiv"]   { background: #ec4899; }
+  .mode-btn.active[data-mode="multiply"] { background: #ec4899; }
+  .mode-btn.active[data-mode="chain"]    { background: #8b5cf6; }
   .stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 6px;
     width: 100%;
-    max-width: 360px;
+    max-width: 760px;
     margin-bottom: 10px;
   }
   .stat {
@@ -114,7 +115,7 @@
     gap: 6px;
     box-shadow: 0 4px 12px rgba(146, 64, 14, 0.12);
     width: 100%;
-    max-width: 360px;
+    max-width: 760px;
     font-family: "Fredoka", sans-serif;
     flex-wrap: nowrap;
   }
@@ -158,7 +159,7 @@
     grid-template-columns: repeat(5, 1fr);
     gap: 5px;
     width: 100%;
-    max-width: 360px;
+    max-width: 760px;
     margin-bottom: 12px;
   }
   .tile {
@@ -191,9 +192,7 @@
   .tile.selected {
     background: #fbbf24;
     color: white !important;
-    box-shadow: 
-      0 0 0 3px #f59e0b, 
-      0 4px 8px rgba(245, 158, 11, 0.4);
+    box-shadow: 0 0 0 3px #f59e0b, 0 4px 8px rgba(245, 158, 11, 0.4);
     transform: translateY(-2px);
     z-index: 2;
   }
@@ -219,13 +218,106 @@
     box-shadow: none;
     pointer-events: none;
   }
+  /* CHAIN-mode rows */
+  .chain-container {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 760px;
+    margin-bottom: 12px;
+  }
+  .chain-row {
+    background: white;
+    padding: 10px 8px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    box-shadow: 0 2px 6px rgba(146, 64, 14, 0.1);
+  }
+  .chain-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 62px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    border-radius: 14px;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 4px;
+    font-size: 28px;
+    white-space: nowrap;
+    line-height: 1;
+    transition: transform 0.1s, box-shadow 0.1s;
+    background: #fef3c7;
+    color: #92400e;
+  }
+  .chain-cell.start {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  .chain-cell.clickable {
+    cursor: pointer;
+  }
+  .chain-cell.clickable:active {
+    transform: translateY(1px);
+  }
+  .chain-cell.selected {
+    background: #fbbf24;
+    color: white;
+    box-shadow: 0 0 0 3px #f59e0b;
+    transform: translateY(-2px);
+    z-index: 2;
+  }
+  .chain-cell.complete {
+    background: #16a34a;
+    color: white;
+    animation: pop 0.5s;
+  }
+  .chain-cell.shake {
+    animation: shake 0.4s ease;
+  }
+  .chain-cell.hint {
+    animation: chainHint 0.8s ease-in-out 2;
+  }
+  @keyframes chainHint {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+    50% { box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.5); }
+  }
+  .chain-equals {
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin: 0 1px;
+    font-family: 'Fredoka', sans-serif;
+  }
+  .chain-cell.answer {
+    background: #fef3c7;
+    color: #b45309;
+    min-width: 38px;
+    font-size: 12px;
+  }
+  .chain-cell.answer.complete, .chain-cell.complete {
+    background: #16a34a;
+    color: white;
+    animation: pop 0.5s;
+  }
+  @keyframes pop {
+    0% { transform: scale(0); }
+    80% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
   .controls {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
     justify-content: center;
     width: 100%;
-    max-width: 360px;
+    max-width: 760px;
   }
   button.action {
     padding: 11px 12px;
@@ -252,7 +344,7 @@
     padding: 10px 14px;
     border-radius: 14px;
     margin-top: 12px;
-    max-width: 360px;
+    max-width: 760px;
     width: 100%;
     font-size: 12px;
     color: #78350f;
@@ -340,29 +432,48 @@
   @keyframes fall {
     to { transform: translateY(110vh) rotate(720deg); }
   }
+
+  @media (orientation: landscape) {
+    body { padding: 10px 12px 18px; }
+    h1 { font-size: 36px; }
+    .subtitle { font-size: 18px; }
+    .mode-btn { font-size: 17px; padding: 10px 6px; }
+    .stat-label { font-size: 14px; }
+    .stat-value { font-size: 28px; }
+    .rules { font-size: 17px; }
+    .rules-title { font-size: 17px; }
+    .ex { font-size: 16px; padding: 4px 10px; }
+    button.action { font-size: 19px; padding: 13px 16px; }
+    .chain-container { gap: 10px; }
+    .chain-cell { height: 70px; font-size: 34px; }
+    .chain-cell.long { font-size: 27px; }
+    .chain-cell.xlong { font-size: 21px; }
+  }
+
 </style>
 </head>
 <body>
   <div class="header">
-    <h1><span class="emoji">🎯</span> 湊百消消樂</h1>
-    <p class="subtitle">找到能湊出 100 倍數的兩個格子</p>
+    <h1><span class="emoji">🧮</span> 簡化計算</h1>
+    <p class="subtitle" id="subtitle">找到能湊出 100 倍數的兩個格子</p>
   </div>
   
   <div class="mode-bar" id="modeBar">
     <button class="mode-btn active" data-mode="add100">➕<br>百</button>
     <button class="mode-btn" data-mode="add1000">➕<br>千</button>
     <button class="mode-btn" data-mode="add10000">➕<br>萬</button>
-    <button class="mode-btn" data-mode="mulDiv">✖<br>乘除</button>
+    <button class="mode-btn" data-mode="multiply">✖<br>乘法</button>
+    <button class="mode-btn" data-mode="chain">×÷<br>乘除</button>
   </div>
   
   <div class="stats">
     <div class="stat">
-      <div class="stat-label">已消除</div>
-      <div class="stat-value"><span id="pairs">0</span>/12</div>
+      <div class="stat-label" id="statLabel1">已消除</div>
+      <div class="stat-value"><span id="stat1Value">0</span><span id="stat1Total">/12</span></div>
     </div>
     <div class="stat">
       <div class="stat-label">出手</div>
-      <div class="stat-value" id="attempts">0</div>
+      <div class="stat-value" id="stat2Value">0</div>
     </div>
     <div class="stat">
       <div class="stat-label">時間</div>
@@ -370,7 +481,7 @@
     </div>
   </div>
   
-  <div class="formula">
+  <div class="formula" id="formula">
     <span class="f-num empty" id="sel1">?</span>
     <span class="f-op" id="op">+</span>
     <span class="f-num empty" id="sel2">?</span>
@@ -379,6 +490,7 @@
   </div>
   
   <div class="grid" id="grid"></div>
+  <div class="chain-container" id="chainContainer"></div>
   
   <div class="controls">
     <button class="action btn-primary" onclick="newGame()">🔄 新局</button>
@@ -420,18 +532,13 @@ function sizeClass(s) {
   return '';
 }
 
-// Generate an addition pair where sum % modN === 0
-// minMag/maxMag: magnitude range for operands (positive bounds)
 function genAddPair(modN, minMag, maxMag) {
-  // 30% chance: zero-sum pair (a + (-a) = 0)
   if (Math.random() < 0.3) {
     const a = randInt(minMag, maxMag);
     return [a, -a];
   }
-  
   const negative = Math.random() < 0.3;
   const sign = negative ? -1 : 1;
-  
   const minSum = 2 * minMag;
   const maxSum = 2 * maxMag;
   const minTargetN = Math.ceil(minSum / modN);
@@ -442,7 +549,6 @@ function genAddPair(modN, minMag, maxMag) {
   }
   const targetN = randInt(minTargetN, maxTargetN);
   const target = targetN * modN;
-  
   const aMin = Math.max(minMag, target - maxMag);
   const aMax = Math.min(maxMag, target - minMag);
   if (aMax < aMin) {
@@ -451,14 +557,210 @@ function genAddPair(modN, minMag, maxMag) {
   }
   const a = randInt(aMin, aMax);
   const b = target - a;
-  
   return [sign * a, sign * b];
+}
+
+// Chain mode: each row has 7 cells: first cell is a number, the other 6 cells are operations.
+// Example: 50  [×12] [÷4] [×7] [÷3] ... = ?
+// Students can select the left number too. Two selected cells merge into one cell.
+function displayNum(n) {
+  if (Math.abs(n) >= 1000000) return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return String(n);
+}
+function displayChainCell(cell) {
+  if (!cell) return '';
+  if (cell.type === 'num') return displayNum(cell.n);
+  return `${cell.op}${displayNum(cell.n)}`;
+}
+function getChainCellValue(cell) {
+  return cell ? cell.n : 0;
+}
+function makeNum(n) { return { type: 'num', n }; }
+function makeOp(op, n) { return { type: 'op', op, n }; }
+
+function getChainBanks() {
+  return [
+    // Lv.0：兩位數起始，容易約分
+    [
+      { start: 80,  ops: [makeOp('×',6),  makeOp('÷',3),  makeOp('×',11), makeOp('÷',2),  makeOp('×',5),  makeOp('÷',10)] },
+      { start: 36,  ops: [makeOp('×',8),  makeOp('÷',9),  makeOp('×',5),  makeOp('÷',2),  makeOp('×',7),  makeOp('÷',10)] },
+      { start: 25,  ops: [makeOp('×',14), makeOp('÷',5),  makeOp('×',6),  makeOp('÷',3),  makeOp('×',4),  makeOp('÷',2)] },
+      { start: 39,  ops: [makeOp('×',5),  makeOp('÷',3),  makeOp('×',12), makeOp('÷',4),  makeOp('×',2),  makeOp('÷',10)] },
+      { start: 50,  ops: [makeOp('×',12), makeOp('÷',4),  makeOp('×',7),  makeOp('÷',3),  makeOp('×',5),  makeOp('÷',10)] },
+      { start: 42,  ops: [makeOp('×',10), makeOp('÷',7),  makeOp('×',9),  makeOp('÷',3),  makeOp('×',5),  makeOp('÷',6)] },
+      { start: 54,  ops: [makeOp('×',10), makeOp('÷',9),  makeOp('×',8),  makeOp('÷',6),  makeOp('×',7),  makeOp('÷',4)] }
+    ],
+    // Lv.1：加入較大的兩位數
+    [
+      { start: 72,  ops: [makeOp('×',15), makeOp('÷',9),  makeOp('×',8),  makeOp('÷',6),  makeOp('×',5),  makeOp('÷',10)] },
+      { start: 84,  ops: [makeOp('×',25), makeOp('÷',7),  makeOp('×',6),  makeOp('÷',3),  makeOp('×',4),  makeOp('÷',8)] },
+      { start: 96,  ops: [makeOp('×',35), makeOp('÷',8),  makeOp('×',9),  makeOp('÷',3),  makeOp('×',2),  makeOp('÷',10)] },
+      { start: 75,  ops: [makeOp('×',16), makeOp('÷',5),  makeOp('×',7),  makeOp('÷',4),  makeOp('×',3),  makeOp('÷',6)] },
+      { start: 64,  ops: [makeOp('×',45), makeOp('÷',8),  makeOp('×',6),  makeOp('÷',9),  makeOp('×',5),  makeOp('÷',10)] },
+      { start: 81,  ops: [makeOp('×',14), makeOp('÷',9),  makeOp('×',12), makeOp('÷',6),  makeOp('×',5),  makeOp('÷',7)] },
+      { start: 90,  ops: [makeOp('×',16), makeOp('÷',10), makeOp('×',21), makeOp('÷',7),  makeOp('×',4),  makeOp('÷',6)] }
+    ],
+    // Lv.2：百位數起始
+    [
+      { start: 120, ops: [makeOp('×',12), makeOp('÷',6),  makeOp('×',25), makeOp('÷',5),  makeOp('×',4),  makeOp('÷',8)] },
+      { start: 150, ops: [makeOp('×',18), makeOp('÷',9),  makeOp('×',14), makeOp('÷',7),  makeOp('×',5),  makeOp('÷',10)] },
+      { start: 240, ops: [makeOp('×',15), makeOp('÷',8),  makeOp('×',6),  makeOp('÷',3),  makeOp('×',7),  makeOp('÷',5)] },
+      { start: 360, ops: [makeOp('×',25), makeOp('÷',9),  makeOp('×',8),  makeOp('÷',4),  makeOp('×',3),  makeOp('÷',10)] },
+      { start: 480, ops: [makeOp('×',35), makeOp('÷',6),  makeOp('×',12), makeOp('÷',4),  makeOp('×',5),  makeOp('÷',10)] },
+      { start: 210, ops: [makeOp('×',16), makeOp('÷',7),  makeOp('×',15), makeOp('÷',5),  makeOp('×',6),  makeOp('÷',8)] },
+      { start: 270, ops: [makeOp('×',20), makeOp('÷',9),  makeOp('×',14), makeOp('÷',7),  makeOp('×',5),  makeOp('÷',10)] }
+    ],
+    // Lv.3：百位數 + 兩步約分
+    [
+      { start: 125, ops: [makeOp('×',24), makeOp('÷',6),  makeOp('×',18), makeOp('÷',9),  makeOp('×',4),  makeOp('÷',8)] },
+      { start: 225, ops: [makeOp('×',16), makeOp('÷',8),  makeOp('×',21), makeOp('÷',7),  makeOp('×',5),  makeOp('÷',10)] },
+      { start: 300, ops: [makeOp('×',28), makeOp('÷',7),  makeOp('×',15), makeOp('÷',5),  makeOp('×',6),  makeOp('÷',9)] },
+      { start: 450, ops: [makeOp('×',32), makeOp('÷',8),  makeOp('×',12), makeOp('÷',6),  makeOp('×',7),  makeOp('÷',10)] },
+      { start: 625, ops: [makeOp('×',20), makeOp('÷',5),  makeOp('×',18), makeOp('÷',9),  makeOp('×',4),  makeOp('÷',8)] },
+      { start: 540, ops: [makeOp('×',25), makeOp('÷',9),  makeOp('×',14), makeOp('÷',7),  makeOp('×',6),  makeOp('÷',10)] },
+      { start: 375, ops: [makeOp('×',18), makeOp('÷',5),  makeOp('×',16), makeOp('÷',8),  makeOp('×',7),  makeOp('÷',6)] }
+    ],
+    // Lv.4：千位數起始
+    [
+      { start: 1000, ops: [makeOp('×',12), makeOp('÷',4),  makeOp('×',25), makeOp('÷',5),  makeOp('×',6),  makeOp('÷',10)] },
+      { start: 1250, ops: [makeOp('×',16), makeOp('÷',8),  makeOp('×',14), makeOp('÷',7),  makeOp('×',5),  makeOp('÷',10)] },
+      { start: 1500, ops: [makeOp('×',18), makeOp('÷',6),  makeOp('×',20), makeOp('÷',5),  makeOp('×',7),  makeOp('÷',10)] },
+      { start: 2400, ops: [makeOp('×',35), makeOp('÷',7),  makeOp('×',12), makeOp('÷',3),  makeOp('×',5),  makeOp('÷',10)] },
+      { start: 3600, ops: [makeOp('×',15), makeOp('÷',5),  makeOp('×',24), makeOp('÷',6),  makeOp('×',8),  makeOp('÷',10)] },
+      { start: 1800, ops: [makeOp('×',14), makeOp('÷',9),  makeOp('×',25), makeOp('÷',5),  makeOp('×',8),  makeOp('÷',4)] },
+      { start: 2250, ops: [makeOp('×',16), makeOp('÷',10), makeOp('×',21), makeOp('÷',7),  makeOp('×',6),  makeOp('÷',8)] }
+    ],
+    // Lv.5+：千位數 + 更大乘數
+    [
+      { start: 2500, ops: [makeOp('×',36), makeOp('÷',9),  makeOp('×',28), makeOp('÷',7),  makeOp('×',5),  makeOp('÷',10)] },
+      { start: 3200, ops: [makeOp('×',45), makeOp('÷',9),  makeOp('×',16), makeOp('÷',8),  makeOp('×',7),  makeOp('÷',10)] },
+      { start: 5000, ops: [makeOp('×',24), makeOp('÷',6),  makeOp('×',35), makeOp('÷',5),  makeOp('×',4),  makeOp('÷',8)] },
+      { start: 6400, ops: [makeOp('×',18), makeOp('÷',9),  makeOp('×',28), makeOp('÷',4),  makeOp('×',5),  makeOp('÷',10)] },
+      { start: 7200, ops: [makeOp('×',32), makeOp('÷',8),  makeOp('×',45), makeOp('÷',9),  makeOp('×',6),  makeOp('÷',10)] },
+      { start: 8400, ops: [makeOp('×',25), makeOp('÷',7),  makeOp('×',18), makeOp('÷',6),  makeOp('×',8),  makeOp('÷',10)] },
+      { start: 9600, ops: [makeOp('×',21), makeOp('÷',8),  makeOp('×',40), makeOp('÷',5),  makeOp('×',6),  makeOp('÷',9)] }
+    ]
+  ];
+}
+
+function generateChainGame() {
+  const banks = getChainBanks();
+  const level = Math.min(chainLevel, banks.length - 1);
+  const bank = shuffle(banks[level].map(row => ({
+    start: row.start,
+    ops: row.ops.map(op => ({ ...op }))
+  })));
+  return bank.slice(0, 5).map(row => ({
+    cells: [makeNum(row.start), ...row.ops.map(op => ({ ...op }))]
+  }));
+}
+
+function normalizeOpCell(cell) {
+  // ×1 does not need to stay as an operation; ÷1 also does nothing.
+  if (cell.type === 'op' && cell.n === 1) return null;
+  return cell;
+}
+
+function canUseSimpleDigitMultiply(rowCellCount, ...nums) {
+  return rowCellCount <= 4 && nums.every(n => Number.isInteger(n) && Math.abs(n) <= 9);
+}
+
+function getChainMerge(a, b, rowCellCount = 7) {
+  if (!a || !b) return null;
+
+  // Number + operation: actually calculate the number.
+  if (a.type === 'num' && b.type === 'op') {
+    if (b.op === '×') {
+      const value = a.n * b.n;
+      if (value % 10 === 0 || canUseSimpleDigitMultiply(rowCellCount, b.n)) {
+        return { cell: makeNum(value), text: `${a.n}×${b.n}=${value}` };
+      }
+    }
+    if (b.op === '÷' && b.n !== 0 && a.n % b.n === 0) {
+      return { cell: makeNum(a.n / b.n), text: `${a.n}÷${b.n}=${a.n / b.n}` };
+    }
+    return null;
+  }
+  if (a.type === 'op' && b.type === 'num') return getChainMerge(b, a, rowCellCount);
+
+  // Operation + operation: simplify signs first, then keep it as one operation cell.
+  if (a.type === 'op' && b.type === 'op') {
+    if (a.op === '×' && b.op === '×') {
+      const value = a.n * b.n;
+      if (value % 10 === 0 || canUseSimpleDigitMultiply(rowCellCount, a.n, b.n)) {
+        return { cell: makeOp('×', value), text: `×${a.n}×${b.n}=×${value}` };
+      }
+      return null;
+    }
+    if (a.op === '×' && b.op === '÷') {
+      if (a.n % b.n === 0) {
+        const cell = normalizeOpCell(makeOp('×', a.n / b.n));
+        return { cell, text: `×${a.n}÷${b.n}=${cell ? displayChainCell(cell) : '×1'}` };
+      }
+      if (b.n % a.n === 0) {
+        const cell = normalizeOpCell(makeOp('÷', b.n / a.n));
+        return { cell, text: `×${a.n}÷${b.n}=${cell ? displayChainCell(cell) : '×1'}` };
+      }
+      return null;
+    }
+    if (a.op === '÷' && b.op === '×') return getChainMerge(b, a, rowCellCount);
+    if (a.op === '÷' && b.op === '÷') {
+      const value = a.n * b.n;
+      return { cell: makeOp('÷', value), text: `÷${a.n}÷${b.n}=÷${value}` };
+    }
+  }
+
+  // Two plain numbers should rarely appear, but allow the original number-pair rule.
+  if (a.type === 'num' && b.type === 'num') {
+    const big = Math.max(Math.abs(a.n), Math.abs(b.n));
+    const small = Math.min(Math.abs(a.n), Math.abs(b.n));
+    if (small !== 0 && big % small === 0) return { cell: makeNum(big / small), text: `${big}÷${small}=${big / small}` };
+    if ((a.n * b.n) % 10 === 0 || canUseSimpleDigitMultiply(rowCellCount, a.n, b.n)) {
+      return { cell: makeNum(a.n * b.n), text: `${a.n}×${b.n}=${a.n * b.n}` };
+    }
+  }
+  return null;
+}
+
+function isValidChainPair(a, b, rowCellCount = 7) {
+  return !!getChainMerge(a, b, rowCellCount);
+}
+
+function isSingleDigitCell(cell) {
+  return cell && cell.type === 'num' && Number.isInteger(cell.n) && Math.abs(cell.n) <= 9;
+}
+
+function canFinishWithThreeDigits(cells) {
+  if (!cells || cells.length !== 3) return false;
+  if (!cells.every(isSingleDigitCell)) return false;
+  const product = cells.reduce((acc, cell) => acc * cell.n, 1);
+  return product % 10 === 0;
+}
+
+function getChainRowAnswer(q) {
+  if (!q || !q.cells || q.cells.length === 0) return null;
+  if (q.cells.length === 1 && q.cells[0].type === 'num') return q.cells[0].n;
+  if (canFinishWithThreeDigits(q.cells)) return q.cells.reduce((acc, cell) => acc * cell.n, 1);
+  return null;
+}
+
+function isChainRowComplete(q) {
+  return getChainRowAnswer(q) !== null;
+}
+
+function updateChainProgress() {
+  chainCompletedRows = chainQuestions.filter(isChainRowComplete).length;
+  document.getElementById('stat1Value').textContent = chainCompletedRows;
 }
 
 const MODES = {
   add100: {
+    type: 'match',
+    target: 12,
+    statLabel1: '已消除',
     rule: '兩數相加 = 100 的倍數，操作數是 2 位數',
     examples: ['73 + 27 = 100', '−45 + 45 = 0', '−62 + −38 = −100'],
+    subtitle: '找到能湊出 100 倍數的兩個格子',
     formulaOp: '+',
     isNeg: v => v < 0,
     display: v => String(v),
@@ -481,10 +783,13 @@ const MODES = {
       return shuffle(nums);
     }
   },
-  
   add1000: {
+    type: 'match',
+    target: 12,
+    statLabel1: '已消除',
     rule: '兩數相加 = 100 的倍數，操作數是 3-4 位數',
     examples: ['467 + 1233 = 1700', '789 + 211 = 1000', '−1456 + 1456 = 0'],
+    subtitle: '找到能湊出 100 倍數的兩個格子',
     formulaOp: '+',
     isNeg: v => v < 0,
     display: v => String(v),
@@ -503,10 +808,13 @@ const MODES = {
       return shuffle(nums);
     }
   },
-  
   add10000: {
+    type: 'match',
+    target: 12,
+    statLabel1: '已消除',
     rule: '兩數相加 = 100 的倍數，操作數是 4-5 位數',
     examples: ['3472 + 6528 = 10000', '12345 + 17655 = 30000', '−15000 + 15000 = 0'],
+    subtitle: '找到能湊出 100 倍數的兩個格子',
     formulaOp: '+',
     isNeg: v => v < 0,
     display: v => String(v),
@@ -525,10 +833,13 @@ const MODES = {
       return shuffle(nums);
     }
   },
-  
-  mulDiv: {
+  multiply: {
+    type: 'match',
+    target: 12,
+    statLabel1: '已消除',
     rule: '兩數相乘 = 100 的倍數（湊整：25×4=100、125×8=1000）',
     examples: ['25 × 4 = 100', '50 × 2 = 100', '125 × 8 = 1000', '40 × 25 = 1000'],
+    subtitle: '找到相乘是 100 倍數的兩個格子',
     formulaOp: '×',
     isNeg: () => false,
     display: v => String(v),
@@ -536,24 +847,14 @@ const MODES = {
     validate: (a, b) => (a * b) % 100 === 0 && (a * b) !== 0,
     compute: (a, b) => a * b,
     generate: () => {
-      // Curated pool: all products are multiples of 100
-      // Excludes elements divisible by 100 (e.g., 100, 200) so extras can be truly safe
       const pairs = [
-        // Product = 100
         [2, 50], [4, 25], [5, 20],
-        // Product = 200
         [4, 50], [5, 40], [8, 25], [10, 20],
-        // Product = 300
         [4, 75], [6, 50], [12, 25], [15, 20],
-        // Product = 400
         [5, 80], [8, 50], [10, 40], [16, 25],
-        // Product = 500
         [10, 50], [20, 25],
-        // Product = 1000 (核心 trinity)
         [4, 250], [8, 125], [20, 50], [25, 40],
-        // Product = 2000
         [8, 250], [16, 125], [25, 80], [40, 50],
-        // Product = 10000
         [40, 250], [80, 125]
       ];
       const nums = [];
@@ -562,15 +863,24 @@ const MODES = {
         if (Math.random() < 0.5) nums.push(p[0], p[1]);
         else nums.push(p[1], p[0]);
       }
-      // Safe extras: coprime to 10, so X × any pool element won't be multiple of 100
       const safeExtras = [3, 7, 9, 11, 13, 17, 19, 21, 23, 27, 29, 33, 37, 39, 49];
       nums.push(safeExtras[randInt(0, safeExtras.length - 1)]);
       return shuffle(nums);
     }
+  },
+  chain: {
+    type: 'chain',
+    target: 5,
+    statLabel1: '已完成',
+    rule: '乘除題共 5 行，每行 7 格（含最左邊數字）。第一格也能點，後面每格都有 × 或 ÷。每按一次新局會更難，後面會出百位數、千位數。若剩 4 格內，可開放簡單個位數乘法；若最後剩 3 個個位數，而且三數相乘是 10 的倍數，也算過關。',
+    examples: ['50 和 ÷10 → 5', '×12 和 ÷4 → ×3', '剩 4 格內時，5 和 ×7 也能先乘'],
+    subtitle: '最左邊也能點；點兩格後會合併成 1 格',
+    generate: () => generateChainGame()
   }
 };
 
 let currentMode = 'add100';
+let chainLevel = 0; // 乘除題每按一次新局就升級
 let tiles = [];
 let selected = [];
 let pairsFound = 0;
@@ -579,8 +889,15 @@ let startTime = null;
 let timerInterval = null;
 let busy = false;
 
+// Chain mode state
+let chainQuestions = [];
+let chainSelection = null; // {row, idx} | null
+let chainCompletedRows = 0;
+let chainSuccessfulMoves = 0;
+
 function getMode() { return MODES[currentMode]; }
 
+// === MATCH MODE ===
 function renderGrid() {
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
@@ -627,7 +944,7 @@ function clickTile(idx) {
   
   if (selected.length === 2) {
     attempts++;
-    document.getElementById('attempts').textContent = attempts;
+    document.getElementById('stat2Value').textContent = attempts;
     const a = tiles[selected[0]];
     const b = tiles[selected[1]];
     const mode = getMode();
@@ -645,7 +962,7 @@ function clickTile(idx) {
           sel.forEach(i => { tiles[i] = null; });
           selected = [];
           pairsFound++;
-          document.getElementById('pairs').textContent = pairsFound;
+          document.getElementById('stat1Value').textContent = pairsFound;
           renderGrid();
           updateFormula();
           busy = false;
@@ -675,14 +992,13 @@ function clickTile(idx) {
 }
 
 function updateFormula() {
+  const mode = getMode();
+  if (mode.type !== 'match') return;
   const sel1 = document.getElementById('sel1');
   const sel2 = document.getElementById('sel2');
   const result = document.getElementById('selResult');
   const opEl = document.getElementById('op');
-  const mode = getMode();
-  
   opEl.textContent = mode.formulaOp;
-  
   if (selected.length >= 1) {
     const v = tiles[selected[0]];
     sel1.textContent = mode.display(v);
@@ -691,13 +1007,11 @@ function updateFormula() {
     sel1.textContent = '?';
     sel1.className = 'f-num empty';
   }
-  
   if (selected.length >= 2) {
     const v1 = tiles[selected[0]];
     const v2 = tiles[selected[1]];
     sel2.textContent = mode.display(v2);
     sel2.className = `f-num ${mode.isNeg(v2) ? 'neg' : 'pos'} ${mode.lenClass(v2)}`.trim();
-    
     const valid = mode.validate(v1, v2);
     const res = mode.compute(v1, v2);
     result.textContent = res;
@@ -710,14 +1024,174 @@ function updateFormula() {
   }
 }
 
+// === CHAIN MODE ===
+function renderChain() {
+  const container = document.getElementById('chainContainer');
+  container.innerHTML = '';
+  chainQuestions.forEach((q, rowIdx) => {
+    const row = document.createElement('div');
+    row.className = 'chain-row';
+    const rowComplete = isChainRowComplete(q);
+    q.cells.forEach((cellData, idx) => {
+      const cell = document.createElement('div');
+      cell.dataset.row = rowIdx;
+      cell.dataset.idx = idx;
+      const cls = ['chain-cell', cellData.type === 'num' ? 'start' : 'op', sizeClass(displayChainCell(cellData))];
+      if (!rowComplete) cls.push('clickable');
+      if (chainSelection && chainSelection.row === rowIdx && chainSelection.idx === idx) cls.push('selected');
+      if (rowComplete) cls.push('complete');
+      cell.className = cls.filter(Boolean).join(' ');
+      cell.textContent = displayChainCell(cellData);
+      if (!rowComplete) {
+        cell.addEventListener('click', () => clickChainOp(rowIdx, idx));
+        cell.addEventListener('touchstart', (e) => { e.preventDefault(); clickChainOp(rowIdx, idx); }, {passive: false});
+      }
+      row.appendChild(cell);
+    });
+
+    const eq = document.createElement('div');
+    eq.className = 'chain-equals';
+    eq.textContent = '=';
+    row.appendChild(eq);
+
+    const answerCell = document.createElement('div');
+    answerCell.className = 'chain-cell answer';
+    const answerValue = getChainRowAnswer(q);
+    if (answerValue !== null) {
+      answerCell.classList.add('complete');
+      answerCell.textContent = displayNum(answerValue);
+    } else {
+      answerCell.textContent = '?';
+    }
+    row.appendChild(answerCell);
+    container.appendChild(row);
+  });
+}
+
+function clickChainOp(rowIdx, idx) {
+  if (busy) return;
+  const q = chainQuestions[rowIdx];
+  if (!q || isChainRowComplete(q) || q.cells.length <= 1) return;
+  const sel = chainSelection;
+  if (!sel) {
+    chainSelection = { row: rowIdx, idx };
+    renderChain();
+    return;
+  }
+  if (sel.row === rowIdx && sel.idx === idx) {
+    chainSelection = null;
+    renderChain();
+    return;
+  }
+  if (sel.row !== rowIdx) {
+    chainSelection = { row: rowIdx, idx };
+    renderChain();
+    return;
+  }
+
+  const a = q.cells[sel.idx];
+  const b = q.cells[idx];
+  const merged = getChainMerge(a, b, q.cells.length);
+  attempts++;
+  document.getElementById('stat2Value').textContent = attempts;
+
+  if (merged) {
+    const wasComplete = isChainRowComplete(q);
+    const removeA = Math.max(sel.idx, idx);
+    const removeB = Math.min(sel.idx, idx);
+    q.cells.splice(removeA, 1);
+    q.cells.splice(removeB, 1);
+    if (merged.cell) q.cells.splice(removeB, 0, merged.cell);
+    chainSelection = null;
+    pairsFound++;
+    chainSuccessfulMoves++;
+    renderChain();
+    burstConfetti();
+    const nowComplete = isChainRowComplete(q);
+    if (!wasComplete && nowComplete) updateChainProgress();
+    if (chainCompletedRows === getMode().target) winGame();
+  } else {
+    busy = true;
+    const c1 = document.querySelector(`.chain-cell[data-row="${sel.row}"][data-idx="${sel.idx}"]`);
+    const c2 = document.querySelector(`.chain-cell[data-row="${rowIdx}"][data-idx="${idx}"]`);
+    if (c1) c1.classList.add('shake');
+    if (c2) c2.classList.add('shake');
+    setTimeout(() => {
+      chainSelection = null;
+      busy = false;
+      renderChain();
+    }, 450);
+  }
+}
+
+// === SHARED ===
 function clearSelection() {
   if (busy) return;
-  selected.forEach(i => {
-    const el = document.querySelector(`.tile[data-idx="${i}"]`);
-    if (el) el.classList.remove('selected');
-  });
-  selected = [];
-  updateFormula();
+  const mode = getMode();
+  if (mode.type === 'match') {
+    selected.forEach(i => {
+      const el = document.querySelector(`.tile[data-idx="${i}"]`);
+      if (el) el.classList.remove('selected');
+    });
+    selected = [];
+    updateFormula();
+  } else if (mode.type === 'chain') {
+    if (chainSelection) {
+      chainSelection = null;
+      renderChain();
+    }
+  }
+}
+
+function showHint() {
+  if (busy) return;
+  const mode = getMode();
+  if (mode.type === 'match') {
+    clearSelection();
+    const remaining = [];
+    tiles.forEach((v, i) => { if (v !== null && v !== undefined) remaining.push(i); });
+    for (let i = 0; i < remaining.length; i++) {
+      for (let j = i + 1; j < remaining.length; j++) {
+        if (mode.validate(tiles[remaining[i]], tiles[remaining[j]])) {
+          const el = document.querySelector(`.tile[data-idx="${remaining[i]}"]`);
+          if (el) {
+            el.classList.add('hint');
+            setTimeout(() => el.classList.remove('hint'), 1700);
+          }
+          return;
+        }
+      }
+    }
+    document.getElementById('winEmoji').textContent = '😅';
+    document.getElementById('winTitle').textContent = '沒辦法繼續了';
+    document.getElementById('stars').textContent = '';
+    document.getElementById('winStats').innerHTML = 
+      `剩下的格子無法配對<br>清掉了 <strong>${pairsFound}</strong> 對，再試一次吧！`;
+    document.getElementById('overlay').classList.add('show');
+  } else if (mode.type === 'chain') {
+    clearSelection();
+    for (let r = 0; r < chainQuestions.length; r++) {
+      const cells = chainQuestions[r].cells;
+      if (isChainRowComplete(chainQuestions[r]) || cells.length <= 1) continue;
+      for (let i = 0; i < cells.length; i++) {
+        for (let j = i + 1; j < cells.length; j++) {
+          if (isValidChainPair(cells[i], cells[j], cells.length)) {
+            const c1 = document.querySelector(`.chain-cell[data-row="${r}"][data-idx="${i}"]`);
+            const c2 = document.querySelector(`.chain-cell[data-row="${r}"][data-idx="${j}"]`);
+            if (c1) { c1.classList.add('hint'); setTimeout(() => c1.classList.remove('hint'), 1700); }
+            if (c2) { c2.classList.add('hint'); setTimeout(() => c2.classList.remove('hint'), 1700); }
+            return;
+          }
+        }
+      }
+    }
+    document.getElementById('winEmoji').textContent = '😅';
+    document.getElementById('winTitle').textContent = '沒辦法繼續了';
+    document.getElementById('stars').textContent = '';
+    document.getElementById('winStats').innerHTML = 
+      `剩下的數字無法合併<br>已完成 <strong>${chainCompletedRows}</strong> 行，再試一次吧！`;
+    document.getElementById('overlay').classList.add('show');
+  }
 }
 
 function startTimer() {
@@ -731,54 +1205,24 @@ function startTimer() {
   }, 1000);
 }
 
-function showHint() {
-  if (busy) return;
-  clearSelection();
-  const remaining = [];
-  tiles.forEach((v, i) => { if (v !== null && v !== undefined) remaining.push(i); });
-  const mode = getMode();
-  
-  for (let i = 0; i < remaining.length; i++) {
-    for (let j = i + 1; j < remaining.length; j++) {
-      if (mode.validate(tiles[remaining[i]], tiles[remaining[j]])) {
-        const el = document.querySelector(`.tile[data-idx="${remaining[i]}"]`);
-        if (el) {
-          el.classList.add('hint');
-          setTimeout(() => el.classList.remove('hint'), 1700);
-        }
-        return;
-      }
-    }
-  }
-  
-  document.getElementById('winEmoji').textContent = '😅';
-  document.getElementById('winTitle').textContent = '沒辦法繼續了';
-  document.getElementById('stars').textContent = '';
-  document.getElementById('winStats').innerHTML = 
-    `剩下的格子無法配對<br>清掉了 <strong>${pairsFound}</strong> 對，再試一次吧！`;
-  document.getElementById('overlay').classList.add('show');
-}
-
 function winGame() {
   clearInterval(timerInterval);
   const elapsed = Math.floor((Date.now() - startTime) / 1000);
   const m = Math.floor(elapsed / 60);
   const s = elapsed % 60;
-  const accuracy = Math.round(12 / attempts * 100);
-  
+  const accuracyBase = getMode().type === 'chain' ? chainSuccessfulMoves : getMode().target;
+  const accuracy = attempts ? Math.round(accuracyBase / attempts * 100) : 100;
   let stars = '⭐';
   if (accuracy >= 60) stars = '⭐⭐';
   if (accuracy >= 85) stars = '⭐⭐⭐';
-  
   document.getElementById('winEmoji').textContent = '🎉';
-  document.getElementById('winTitle').textContent = '全部消光啦！';
+  document.getElementById('winTitle').textContent = '全部完成！';
   document.getElementById('stars').textContent = stars;
   document.getElementById('winStats').innerHTML = 
     `⏱ 用時 <strong>${m}:${s.toString().padStart(2,'0')}</strong><br>
      🎯 出手 <strong>${attempts}</strong> 次<br>
      📊 準確率 <strong>${accuracy}%</strong>`;
   document.getElementById('overlay').classList.add('show');
-  
   for (let i = 0; i < 40; i++) {
     setTimeout(() => burstConfetti(true), i * 50);
   }
@@ -802,9 +1246,10 @@ function burstConfetti(big = false) {
   }
 }
 
-function updateRules() {
+function updateRulesAndStats() {
   const mode = getMode();
   document.getElementById('rulesText').textContent = mode.rule;
+  document.getElementById('subtitle').textContent = mode.subtitle;
   const ex = document.getElementById('rulesExamples');
   ex.innerHTML = '';
   mode.examples.forEach(e => {
@@ -813,6 +1258,16 @@ function updateRules() {
     span.textContent = e;
     ex.appendChild(span);
   });
+  document.getElementById('statLabel1').textContent = mode.statLabel1;
+  document.getElementById('stat1Total').textContent = `/${mode.target}`;
+}
+
+function switchUIForMode() {
+  const mode = getMode();
+  const isMatch = mode.type === 'match';
+  document.getElementById('formula').style.display = isMatch ? 'flex' : 'none';
+  document.getElementById('grid').style.display = isMatch ? 'grid' : 'none';
+  document.getElementById('chainContainer').style.display = isMatch ? 'none' : 'flex';
 }
 
 function switchMode(mode) {
@@ -821,22 +1276,33 @@ function switchMode(mode) {
   document.querySelectorAll('.mode-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.mode === mode);
   });
-  updateRules();
+  updateRulesAndStats();
+  switchUIForMode();
   newGame();
 }
 
 function newGame() {
   busy = false;
-  const mode = getMode();
-  tiles = mode.generate();
   selected = [];
   pairsFound = 0;
   attempts = 0;
+  chainSelection = null;
+  chainCompletedRows = 0;
+  chainSuccessfulMoves = 0;
   document.getElementById('overlay').classList.remove('show');
-  document.getElementById('pairs').textContent = '0';
-  document.getElementById('attempts').textContent = '0';
-  renderGrid();
-  updateFormula();
+  document.getElementById('stat1Value').textContent = '0';
+  document.getElementById('stat2Value').textContent = '0';
+  const mode = getMode();
+  if (mode.type === 'match') {
+    tiles = mode.generate();
+    renderGrid();
+    updateFormula();
+  } else if (mode.type === 'chain') {
+    chainQuestions = mode.generate();
+    updateChainProgress();
+    renderChain();
+    chainLevel++;
+  }
   startTimer();
 }
 
@@ -844,7 +1310,8 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
   btn.addEventListener('click', () => switchMode(btn.dataset.mode));
 });
 
-updateRules();
+updateRulesAndStats();
+switchUIForMode();
 newGame();
 </script>
 </body>
